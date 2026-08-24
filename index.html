@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Masjid Attendance Pro">
+<meta name="theme-color" content="#065f46">
+<meta name="msapplication-TileColor" content="#065f46">
+<title>Masjid Attendance Pro</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+<style>
+/* ===== RESET & VARIABEL ===== */
+:root {
+  --primary: #065f46;
+  --primary-light: #0a8f5b;
+  --primary-dark: #04382c;
+  --gold: #c9a227;
+  --gold-light: #e7c86a;
+  --cream: #f6f2e9;
+  --cream-dark: #e5e0d5;
+  --red: #b91c1c;
+  --gray: #6b7280;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --radius: 18px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  background: #d9d2c0;
+  color: #1f2937;
+  line-height: 1.5;
+}
+#app {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--cream);
+  box-shadow: 0 0 40px rgba(0,0,0,0.15);
+  padding-bottom: 90px;
+  position: relative;
+  overflow-x: hidden;
+}
+/* ===== HEADER ===== */
+header {
+  background: linear-gradient(145deg, var(--primary-dark), var(--primary) 60%, var(--primary-light));
+  color: #fff;
+  padding: 28px 20px 60px;
+  border-radius: 0 0 30px 30px;
+  position: relative;
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+  border-radius: 0 0 30px 30px;
+}
+.kad-header {
+  background: #fff;
+  color: #1f2937;
+  border-radius: var(--radius);
+  margin: -46px 16px 0;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow);
+  position: relative;
+  z-index: 2;
+}
+.logo {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 3px solid var(--gold);
+}
+.logo img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.kad-header .hd-txt { flex:1; min-width:0; }
+.kad-header h1 { font-size: 16px; font-weight: 800; letter-spacing:-0.3px; }
+.kad-header h2 { font-size: 12px; color: var(--primary); font-weight: 600; margin-top: 2px; }
+.kad-header p { font-size: 11px; color: var(--gray); margin-top: 4px; }
+
+/* ===== SCREENS ===== */
+.screen { display: none; padding: 16px 14px; animation: fadeUp 0.3s ease; }
+.screen.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* ===== LOGIN PANEL (DIPERBAIKI) ===== */
+.login-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  border: 1px solid var(--cream-dark);
+}
+.login-card .logo { margin: 0 auto 12px; width: 72px; height: 72px; font-size: 36px; }
+.login-card h2 { font-size: 18px; text-align:center; margin-bottom:2px; }
+.login-card h3 { font-size: 13px; color: var(--primary); text-align:center; font-weight:500; margin-bottom:16px; }
+.login-card label { display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:4px; }
+.login-card select,
+.login-card input {
+  width:100%;
+  padding:12px 14px;
+  border:1.5px solid #d1d5db;
+  border-radius:12px;
+  font-size:15px;
+  background:#fff;
+  margin-bottom:12px;
+  transition:var(--transition);
+}
+.login-card select:focus,
+.login-card input:focus {
+  outline:none;
+  border-color:var(--primary-light);
+  box-shadow:0 0 0 3px rgba(5,150,105,0.15);
+}
+#loginPin {
+  font-size:18px;
+  letter-spacing:4px;
+  text-align:center;
+}
+.login-card .btn2 {
+  width:100%;
+  padding:16px;
+  font-size:16px;
+  margin-top:4px;
+}
+.login-note {
+  font-size:12px;
+  color:var(--gray);
+  line-height:1.4;
+  margin-top:12px;
+}
+.muktamad { font-size:12px; color:var(--gray); text-align:center; margin-top:6px; }
+
+/* ===== GRID PROFIL ===== */
+.grid-profil {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.grid-profil.blok { display: block; }
+.profil {
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 14px 6px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.profil:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+.profil img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e5e7eb;
+}
+.profil .nm { font-size: 13px; font-weight: 700; margin-top: 6px; }
+.profil .jw { font-size: 11px; color: var(--gray); }
+.profil.pilih {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px rgba(5,150,105,0.2);
+}
+.profil.pilih img { border-color: #34d399; }
+
+/* ===== MASA LIVE ===== */
+.masa-live {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: #7ef0c0;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 800;
+  border-radius: var(--radius);
+  padding: 14px 10px;
+  margin-bottom: 16px;
+  letter-spacing: 4px;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.4), 0 6px 20px rgba(6,95,70,0.35);
+  text-shadow: 0 0 20px rgba(126,240,192,0.5);
+}
+
+/* ===== BUTANG UTAMA ===== */
+.row-butang { display:flex; gap:14px; margin-bottom:18px; }
+.btn {
+  flex:1;
+  padding: 16px 10px;
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.15s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.btn:active { transform: scale(0.96); }
+.btn .ic { font-size: 26px; animation: bob 1.8s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
+.btn .lbl { display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; }
+.btn .lbl b { font-size:16px; font-weight:900; letter-spacing:0.5px; }
+.btn .lbl small { font-size:10px; font-weight:600; opacity:0.9; }
+.btn.in {
+  background: linear-gradient(145deg, #10b981, var(--primary-light) 50%, var(--primary));
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(5,150,105,0.5), inset 0 2px 0 rgba(255,255,255,0.25);
+}
+.btn.in::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+  animation: shine 4s infinite;
+}
+@keyframes shine { 0% { transform:translateX(-100%); } 60% { transform:translateX(100%); } 100% { transform:translateX(100%); } }
+.btn.out {
+  background: linear-gradient(145deg, #f87171, #dc2626 50%, #991b1b);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(220,38,38,0.4), inset 0 2px 0 rgba(255,255,255,0.25);
+}
+
+/* ===== KAD & ELEMEN LAIN ===== */
+.kad {
+  background: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  border: 1px solid var(--cream-dark);
+}
+.kad-head {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.wrow {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid #f1ede2;
+}
+.wrow:last-child { border:none; }
+.wrow b { font-variant-numeric:tabular-nums; }
+.wrow.semasa { background: linear-gradient(90deg, rgba(201,162,39,0.2), rgba(231,200,106,0.4)); font-weight:700; }
+
+.tajuk { font-size: 16px; font-weight: 800; margin: 4px 2px 12px; letter-spacing:-0.3px; }
+
+.logrow {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  flex-wrap: wrap;
+}
+.pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 11px;
+}
+.pill.in { background:#d1fae5; color:var(--primary); }
+.pill.out { background:#fee2e2; color:var(--red); }
+.pill.auto { background:#fef3c7; color:#92400e; }
+.pill.gps { background:#e0e7ff; color:#3730a3; }
+
+/* ===== TABBAR ===== */
+#tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  z-index: 10;
+}
+#tabbar button {
+  flex:1;
+  background: none;
+  border: none;
+  font-size: 10px;
+  color: #9ca3af;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: var(--transition);
+}
+#tabbar button span { font-size: 20px; }
+#tabbar button.aktif {
+  color: var(--primary-light);
+  font-weight: 700;
+  border-bottom: 3px solid var(--primary-light);
+  border-radius: 4px 4px 0 0;
+}
+#tabbar button:hover { color: var(--primary); }
+
+/* ===== FORM ===== */
+input, select, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 14px;
+  background: #fff;
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(5,150,105,0.15);
+}
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  display: block;
+  margin-bottom: 4px;
+}
+.btn2 {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(5,150,105,0.25);
+}
+.btn2:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(5,150,105,0.35); }
+.btn2:active { transform: scale(0.97); }
+.btn2.merah {
+  background: linear-gradient(135deg, #7f1d1d, var(--red));
+  box-shadow: 0 4px 12px rgba(185,28,28,0.25);
+}
+.btn2.merah:hover { box-shadow: 0 8px 20px rgba(185,28,28,0.35); }
+
+/* ===== TABEL ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  background: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+th, td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid #f1ede2;
+}
+th { background: #efe9db; font-weight: 700; }
+.bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.bar i { display:block; height:100%; background: linear-gradient(90deg, var(--primary-light), #34d399); }
+
+/* ===== TIME PICKER MODAL ===== */
+.time-picker-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.time-picker-modal.active { display: flex; }
+.time-picker-modal .modal-content {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: scaleIn 0.25s ease;
+}
+@keyframes scaleIn { from { opacity:0; transform:scale(0.9); } to { opacity:1; transform:scale(1); } }
+.time-picker-modal .tp-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.time-picker-modal .tp-col { flex:1; display:flex; flex-direction:column; gap:4px; }
+.time-picker-modal label { font-size:11px; color:var(--gray); margin:0; }
+.time-picker-modal select {
+  padding: 10px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  margin:0;
+}
+.time-picker-modal .tp-actions { display:flex; gap:10px; justify-content:flex-end; }
+.time-picker-modal .tp-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.time-picker-modal .tp-ok { background:var(--primary); color:#fff; }
+.time-picker-modal .tp-cancel { background:#fee2e2; color:var(--red); }
+
+/* ===== ACCORDION ===== */
+.accordion { display: flex; flex-direction: column; gap: 8px; }
+.accordion-item {
+  background: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--cream-dark);
+}
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 14px 18px;
+  background: #fff;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.accordion-header:hover { background: #f0f0f0; }
+.accordion-header .accordion-icon { font-size: 14px; transition: transform 0.3s; }
+.accordion-item.active .accordion-header .accordion-icon { transform: rotate(90deg); }
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+  padding: 0 18px;
+}
+.accordion-item.active .accordion-content {
+  max-height: 2000px;
+  padding: 0 18px 18px;
+}
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  z-index: 999;
+  display: none;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown { from { opacity:0; transform:translate(-50%,-20px); } to { opacity:1; transform:translate(-50%,0); } }
+
+/* ===== LAIN-LAIN ===== */
+.avatar-up {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #eee;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px dashed #9ca3af;
+  transition: var(--transition);
+}
+.avatar-up:hover { border-color: var(--primary-light); }
+.avatar-up img { width:100%; height:100%; object-fit:cover; }
+
+.staff-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.staff-item img { width:44px; height:44px; border-radius:50%; object-fit:cover; }
+.staff-item .act { margin-left:auto; display:flex; gap:6px; }
+.staff-item button {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.staff-item .btn-edit { background:#dbeafe; color:#1e40af; }
+.staff-item .btn-del { background:#fee2e2; color:var(--red); }
+.staff-item button:hover { transform:scale(1.05); }
+
+.logo-preview {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  overflow: hidden;
+  background: #eee;
+  border: 4px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 54px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.logo-preview:hover { border-color: var(--gold-light); transform:scale(1.02); }
+.logo-preview img { width:100%; height:100%; object-fit:cover; }
+
+.scard {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  font-size: 14px;
+}
+.scard .st { font-size:12px; color:var(--gray); }
+.badge-zon {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color:#fff;
+  border-radius:999px;
+  padding: 8px 16px;
+  font-size:12px;
+  font-weight:700;
+}
+.elaun-kad {
+  background: linear-gradient(135deg, #b28e2e, #e7c86a);
+  color: #3b2f04;
+  border-radius: 14px;
+  padding: 14px;
+  text-align:center;
+  font-weight:600;
+  margin-top:12px;
+}
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 99px; }
+
+/* ===== RESPONSIVE TWEAKS ===== */
+@media (max-width: 400px) {
+  .grid-profil { grid-template-columns: repeat(2, 1fr); }
+  .btn .lbl b { font-size:14px; }
+  .masa-live { font-size:24px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header role="banner"></header>
+<div class="kad-header">
+  <div class="logo" id="logoHeader" role="img" aria-label="Logo Masjid">🕌</div>
+  <div class="hd-txt">
+    <h1 id="namaMasjidHeader">Masjid Attendance Pro</h1>
+    <h2 id="taglineHeader">Pengurusan Pintar Imam, Bilal & Kakitangan</h2>
+    <p id="tarikhLine">…</p>
+  </div>
+</div>
+
+<!-- UTAMA -->
+<section id="s-utama" class="screen active" role="main" aria-label="Skrin Utama">
+  <!-- LOGIN PANEL – DIPERBAIKI -->
+  <div id="loginPanel" class="login-card" hidden>
+    <div class="logo" id="logoLogin" role="img" aria-label="Logo Masjid">🕌</div>
+    <h2 id="loginTitle">Masjid Attendance Pro</h2>
+    <h3>Pengurusan Pintar Masjid</h3>
+    <p class="muktamad" style="margin-bottom:14px;">Log masuk untuk staff atau admin.</p>
+
+    <label for="loginId">Pilih Profil / ID Staff</label>
+    <select id="loginId" aria-label="Pilih Profil Staff"></select>
+
+    <label for="loginPin">PIN</label>
+    <input type="password" id="loginPin" inputmode="numeric" placeholder="••••" autocomplete="off" aria-label="PIN">
+
+    <button type="button" class="btn2" id="btnLogin">🔓 Log Masuk</button>
+
+    <div class="login-note">Staff: pilih profil &amp; PIN. Admin: masukkan PIN admin (profil tidak diperlukan).</div>
+    <p class="muktamad">PIN default: 1234 • Boleh diubah oleh Admin</p>
+  </div>
+
+  <div class="grid-profil blok" id="gridProfil" role="list" aria-label="Senarai Profil Staff"></div>
+  <div class="masa-live" id="masaLive" aria-live="polite" aria-atomic="true">--:--:-- --</div>
+  <div class="row-butang">
+    <button type="button" class="btn in" id="btnIn" aria-label="Clock In Mula Berkerja">
+      <span class="ic" aria-hidden="true">🕐</span>
+      <span class="lbl"><b>CLOCK IN</b><small>MULA BERKERJA</small></span>
+    </button>
+    <button type="button" class="btn out" id="btnOut" aria-label="Clock Out Tamat Berkerja">
+      <span class="ic" aria-hidden="true">🚪</span>
+      <span class="lbl"><b>CLOCK OUT</b><small>TAMAT BERKERJA</small></span>
+    </button>
+  </div>
+  <div class="kad">
+    <div class="kad-head">Waktu Solat (JAKIM) — <span id="zonLabel">-</span></div>
+    <div id="senaraiWaktu" role="list" aria-label="Senarai Waktu Solat"></div>
+  </div>
+  <div class="tajuk">Log Kehadiran</div>
+  <div id="logUtama" role="log" aria-label="Log Kehadiran Terkini"></div>
+</section>
+
+<!-- KEHADIRAN -->
+<section id="s-kehadiran" class="screen" role="main" aria-label="Log Kehadiran Penuh">
+  <div class="tajuk">Log Kehadiran Saya</div>
+  <div id="logPenuh" role="log" aria-label="Log Kehadiran Penuh"></div>
+</section>
+
+<!-- SOLAT -->
+<section id="s-solat" class="screen" role="main" aria-label="Tugasan Waktu Solat">
+  <div id="kadSolat"></div>
+</section>
+
+<!-- LAPORAN -->
+<section id="s-laporan" class="screen" role="main" aria-label="Laporan dan Elaun">
+  <div class="tajuk">Laporan & Elaun Saya</div>
+  <label for="bulanPilih" class="visually-hidden">Pilih Bulan</label>
+  <input type="month" id="bulanPilih" aria-label="Pilih Bulan Laporan">
+  <button type="button" class="btn2" id="btnPDF" style="margin-bottom:14px" aria-label="Eksport Laporan PDF">📄 Eksport Laporan PDF</button>
+  <div id="laporan"></div>
+</section>
+
+<!-- ADMIN -->
+<section id="s-admin" class="screen" role="main" aria-label="Panel Admin">
+  <div id="pinGate" class="kad" style="padding:20px">
+    <div class="kad-head" style="margin:-20px 0 14px;border-radius:16px 16px 0 0">🔐 Tetapan Admin — Admin Sahaja</div>
+    <label for="pinInput">PIN Admin</label>
+    <input type="password" id="pinInput" inputmode="numeric" placeholder="••••" autocomplete="off" aria-label="PIN Admin">
+    <button type="button" class="btn2" id="btnPin">Buka Kunci</button>
+  </div>
+  <div id="adminBody" hidden>
+    <div class="accordion">
+      <!-- 1. Pengurusan Masjid -->
+      <div class="accordion-item">
+        <button class="accordion-header" type="button">
+          <span>🕌 Pengurusan Masjid</span>
+          <span class="accordion-icon">▶</span>
+        </button>
+        <div class="accordion-content">
+          <div class="kad" style="padding:16px;">
+            <div class="logo-preview" id="logoPreview" role="button" tabindex="0" aria-label="Klik untuk muat naik logo masjid">🕌<input type="file" id="fileLogo" accept="image/*" hidden aria-label="Pilih fail logo"></div>
+            <p class="muktamad" style="margin:-8px 0 10px">Klik logo untuk muat naik</p>
+            <label for="tNamaMasjid">Nama Masjid</label><input id="tNamaMasjid" placeholder="Cth: Masjid Al-Falah" aria-label="Nama Masjid">
+            <label for="tAlamat">Alamat (pilihan)</label><input id="tAlamat" placeholder="Cth: Shah Alam, Selangor" aria-label="Alamat Masjid">
+            <button type="button" class="btn2" id="btnSimpanMasjid">Simpan Info Masjid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Daftar Staff Baru -->
+      <div class="accordion-item">
+        <button class="accordion-header" type="button">
+          <span>👤 Daftar Staff Baru</span>
+          <span class="accordion-icon">▶</span>
+        </button>
+        <div class="accordion-content">
+          <div class="kad" style="padding:16px;">
+            <div class="tajuk" id="staffFormTitle">Daftar Staff Baru</div>
+            <div class="avatar-up" id="avatarUp" role="button" tabindex="0" aria-label="Klik untuk muat naik gambar profil">📷<input type="file" id="fileGambar" accept="image/*" hidden aria-label="Pilih gambar profil"></div>
+            <label for="fNama">Nama Penuh</label><input id="fNama" placeholder="Cth: Ahmad bin Ali" aria-label="Nama Penuh Staff">
+            <label for="fId">ID Staff</label><input id="fId" placeholder="Cth: S004" aria-label="ID Staff">
+            <label for="fJawatan">Jawatan</label>
+            <select id="fJawatan" aria-label="Jawatan Staff"><option value="">Pilih Jawatan</option><option>Imam</option><option>Bilal</option><option>Staff</option><option>Siak</option><option>Pengawal</option></select>
+            <label for="fPin">PIN Login Staff (kosong = 1234)</label><input id="fPin" inputmode="numeric" placeholder="1234" autocomplete="off" aria-label="PIN Staff">
+            <button type="button" class="btn2" id="btnSimpanStaff">Simpan Profil</button>
+            <button type="button" class="btn2 merah" id="btnBatalEdit" style="margin-top:6px;display:none">Batal Edit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Senarai Staff -->
+      <div class="accordion-item">
+        <button class="accordion-header" type="button">
+          <span>📋 Senarai Staff</span>
+          <span class="accordion-icon">▶</span>
+        </button>
+        <div class="accordion-content">
+          <div id="senaraiStaff" style="overflow:visible;position:relative;z-index:1"></div>
+        </div>
+      </div>
+
+      <!-- 4. Clock In Manual Imam/Bilal -->
+      <div class="accordion-item">
+        <button class="accordion-header" type="button">
+          <span>🔑 Clock In Manual Imam/Bilal</span>
+          <span class="accordion-icon">▶</span>
+        </button>
+        <div class="accordion-content">
+          <div class="kad" style="padding:16px;margin-top:12px;overflow:visible">
+            <p class="muktamad" style="margin-bottom:10px">Gunakan jika Imam/Bilal terlupa clock in. Pilih staff, waktu solat, dan masa.</p>
+            <label for="manualStaff">Pilih Imam/Bilal</label>
+            <select id="manualStaff" aria-label="Pilih Imam atau Bilal"><option value="">-- Pilih --</option></select>
+            <label for="manualWaktu">Waktu Solat</label>
+            <select id="manualWaktu" aria-label="Pilih Waktu Solat"><option value="">-- Pilih --</option><option>Subuh</option><option>Zohor</option><option>Asar</option><option>Maghrib</option><option>Isyak</option></select>
+            <label for="manualMasa">Masa Clock In</label>
+            <div class="time-picker-wrap">
+              <input type="text" id="manualMasa" placeholder="Cth: 05:45 AM" aria-label="Masa Clock In" readonly>
+              <div class="time-picker-modal" id="tpManualModal" hidden></div>
+            </div>
+            <button type="button" class="btn2" id="btnManualClockIn" style="margin-top:8px">✅ Simpan Clock In Manual</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Edit / Padam Kehadiran -->
+      <div class="accordion-item">
+        <button class="accordion-header" type="button">
+          <span>📝 Edit / Padam Kehadiran</span>
+          <span class="accordion-icon">▶</span>
+        </button>
+        <div class="accordion-content">
+          <div class="kad" style="padding:16px;margin-top:12px;overflow:visible">
+            <p class="muktamad" style="margin-bottom:10px">Pilih staff, tarikh, dan masa untuk kemaskini atau padam rekod.</p>
+            <label for="editStaff">Pilih Staff</label>
+            <select id="editStaff" aria-label="Pilih Staff"><option value="">-- Pilih --</option></select>
+            <label for="editTarikh">Tarikh</label>
+            <input type="date" id="editTarikh" aria-label="Tarikh">
+            <label for="editMasaIn">Masa In (format 12h, cth: 05:45 AM)</label>
+            <div class="time-picker-wrap">
+              <input type="text" id="editMasaIn" placeholder="Cth: 05:45 AM" aria-label="Masa In" readonly>
+              <div class="time-picker-modal" id="tpInModal" hidden></div>
+            </div>
+            <label for="editMasaOut">Masa Out (format 12h, kosong = tiada)</label>
+            <div class="time-picker-wrap">
+              <input type="text" id="editMasaOut" placeholder="Cth: 05:45 PM" aria-label="Masa Out" readonly>
+              <div class="time-picker-modal" id="tpOutModal" hidden></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button type="button" class="btn2" id="btnKemaskiniKehadiran" style="flex:1">✏️ Kemaskini</button>
+              <button type="button" class="btn2 merah" id="btnPadamKehadiran" style="flex:1">🗑️ Padam</button>
+            </div>
+            <div id="senaraiEditKehadiran" style="margin-top:10px;max-height:200px;overflow:auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Tetapan Sistem & Geofencing -->
+      <div class="accordion-item">
+        <button class="accordion-header" type="button">
+          <span>⚙️ Tetapan Sistem & Geofencing</span>
+          <span class="accordion-icon">▶</span>
+        </button>
+        <div class="accordion-content">
+          <div class="kad" style="padding:16px;margin-top:12px;overflow:visible">
+            <label for="tLat">Latitud Pejabat/Masjid</label><input id="tLat" type="number" step="any" min="-90" max="90" aria-label="Latitud">
+            <label for="tLng">Longitud</label><input id="tLng" type="number" step="any" min="-180" max="180" aria-label="Longitud">
+            <button type="button" class="btn2" id="btnAutoLoc" style="margin-top:4px;margin-bottom:12px;">📍 Auto Detect Lokasi</button>
+            <label for="tRadius">Radius Zon (meter)</label><input id="tRadius" type="number" min="10" max="5000" aria-label="Radius Zon Meter">
+            <label for="tDurasi">Tempoh dibenarkan Clock In selepas azan (minit)</label><input id="tDurasi" type="number" min="1" max="120" aria-label="Tempoh Clock In Minit">
+            <label for="tImam">Elaun Imam (RM / waktu)</label><input id="tImam" type="number" min="0" max="100" aria-label="Elaun Imam">
+            <label for="tBilal">Elaun Bilal (RM / waktu)</label><input id="tBilal" type="number" min="0" max="100" aria-label="Elaun Bilal">
+            <label for="tZon">Zon JAKIM</label><input id="tZon" placeholder="SGR01" aria-label="Zon JAKIM">
+            <label for="tPin">PIN Admin Baru</label><input id="tPin" autocomplete="off" aria-label="PIN Admin Baru">
+            <button type="button" class="btn2" id="btnSimpanTetapan">Simpan Tetapan</button>
+            <button type="button" class="btn2 merah" id="btnTablet" style="margin-top:8px" aria-label="Daftar Peranti Ini Sebagai Tablet Kiosk">📱 Daftar Peranti Ini Sebagai Tablet Kiosk</button>
+            <button type="button" class="btn2" id="btnPDF2" style="margin-top:8px" aria-label="Eksport PDF Penuh Admin">📄 Eksport PDF Penuh (Admin)</button>
+            <button type="button" class="btn2 merah" id="btnLock" style="margin-top:8px" aria-label="Kunci Admin">🔒 Kunci Admin</button>
+            <p class="muktamad" id="modLabel"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav id="tabbar" role="navigation" aria-label="Navigasi Utama">
+  <button type="button" data-tab="utama" class="aktif" aria-selected="true" aria-controls="s-utama"><span aria-hidden="true">🏠</span>Utama</button>
+  <button type="button" data-tab="kehadiran" aria-selected="false" aria-controls="s-kehadiran"><span aria-hidden="true">📋</span>Kehadiran</button>
+  <button type="button" data-tab="solat" aria-selected="false" aria-controls="s-solat"><span aria-hidden="true">🕌</span>Solat</button>
+  <button type="button" data-tab="laporan" aria-selected="false" aria-controls="s-laporan"><span aria-hidden="true">📊</span>Laporan</button>
+  <button type="button" data-tab="admin" aria-selected="false" aria-controls="s-admin"><span aria-hidden="true">🔐</span>Admin</button>
+</nav>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- MODAL KONFIRMASI -->
+<div id="confirmModal" class="time-picker-modal" style="display:none;align-items:center;justify-content:center;" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal-content" style="max-width:340px;text-align:center;padding:24px;">
+    <h3 id="confirmTitle" style="font-size:18px;margin-bottom:8px;">⚠️</h3>
+    <p id="confirmMsg" style="margin-bottom:20px;font-size:15px;"></p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button id="confirmYes" class="btn2" style="flex:1;padding:12px;">Ya</button>
+      <button id="confirmNo" class="btn2 merah" style="flex:1;padding:12px;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" crossorigin="anonymous"></script>
+
+<script type="module">
+/* ============================================================
+   MASJID ATTENDANCE PRO — VERSI PREMIUM (LENGKAP)
+   ============================================================ */
+
+// ---------- 1. KONFIGURASI ----------
+const SUPABASE_URL = 'https://warihgiicetafowbccvw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhcmloZ2lpY2V0YWZvd2JjY3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDgyNDAsImV4cCI6MjA4ODQ4NDI0MH0.CIeEwHKQOqbUShITcvCE80lVUYiqJjglXDgZ8fnOIQs';
+
+// ---------- 2. UTILITI ----------
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const pad = n => String(n).padStart(2, '0');
+const hariIni = () => new Date().toLocaleDateString('sv-SE');
+const bulanKini = () => hariIni().slice(0, 7);
+
+function masaKini() {
+  const d = new Date();
+  const h = d.getHours();
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hh = pad((h + 11) % 12 + 1);
+  return `${hh}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${period}`;
+}
+
+function to24(s) {
+  if (!s) return '';
+  const m = String(s).trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(am|pm)?$/i);
+  if (!m) return s;
+  let h = +m[1];
+  const ap = (m[4] || '').toLowerCase();
+  if (ap === 'pm' && h !== 12) h += 12;
+  if (ap === 'am' && h === 12) h = 0;
+  return pad(h) + ':' + m[2];
+}
+
+function to12(t) {
+  if (!t) return '-';
+  const s = String(t).trim();
+  const m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*([ap]m))?$/i);
+  if (!m) return s;
+  let h = Number(m[1]);
+  const min = m[2];
+  const sec = s.includes(':') && s.split(':').length > 2 ? ':' + s.split(':')[2].replace(/\s*[ap]m/i, '') : '';
+  const ap = (m[3] || '').toLowerCase();
+  if (ap === 'pm' && h < 12) h += 12;
+  if (ap === 'am' && h === 12) h = 0;
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hh = ((h + 11) % 12) + 1;
+  return pad(hh) + ':' + min + (sec && sec !== ':00' ? sec : '') + ' ' + period;
+}
+
+function toMin(t) {
+  const n = to24(t);
+  if (!n || n === '-') return 0;
+  const [a, b] = n.split(':').map(Number);
+  return (Number.isFinite(a) ? a : 0) * 60 + (Number.isFinite(b) ? b : 0);
+}
+
+function toast(m) {
+  const t = $('#toast');
+  t.textContent = m;
+  t.style.display = 'block';
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.style.display = 'none', 2800);
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000, r = Math.PI / 180;
+  const dLat = (lat2 - lat1) * r, dLon = (lon2 - lon1) * r;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dLon/2)**2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+function avatar(nama) {
+  const safe = escapeHtml(nama || 'Staff');
+  const initials = safe.split(/\s+/).filter(Boolean).map(x => x[0]).slice(0,2).join('').toUpperCase() || 'S';
+  return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><circle cx="48" cy="48" r="48" fill="#0d9488"/><text x="48" y="61" font-family="Arial" font-size="34" fill="#fff" text-anchor="middle">${initials}</text></svg>`)}`;
+}
+
+function normalizeStoredTime(t) { return t && t !== '-' ? to12(t) : null; }
+function normalizeWaktuSolat(src) {
+  return { Subuh:normalizeStoredTime(src?.Subuh), Syuruk:normalizeStoredTime(src?.Syuruk), Zohor:normalizeStoredTime(src?.Zohor), Asar:normalizeStoredTime(src?.Asar), Maghrib:normalizeStoredTime(src?.Maghrib), Isyak:normalizeStoredTime(src?.Isyak) };
+}
+function normalizeLogRecord(r) {
+  return { ...r, masaIn: normalizeStoredTime(r?.masaIn), masaOut: normalizeStoredTime(r?.masaOut) };
+}
+
+const LS = {
+  get: (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch { return d; } },
+  set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
+};
+
+function migrateLegacyCaches() {
+  for (const key of Object.keys(localStorage)) {
+    if (key === 'pk_log') {
+      const cur = LS.get(key, []);
+      if (Array.isArray(cur)) {
+        const next = cur.map(normalizeLogRecord);
+        if (JSON.stringify(next) !== JSON.stringify(cur)) LS.set(key, next);
+      }
+      continue;
+    }
+    if (!key.startsWith('pk_waktu_')) continue;
+    const cur = LS.get(key, null);
+    if (cur && typeof cur === 'object' && !Array.isArray(cur)) {
+      const next = normalizeWaktuSolat(cur);
+      if (JSON.stringify(next) !== JSON.stringify(cur)) LS.set(key, next);
+    }
+  }
+}
+migrateLegacyCaches();
+
+// ---------- 3. STATE ----------
+let tetapan = LS.get('pk_tetapan', {
+  lat: 3.139, lng: 101.687, radius: 150, durasiSolat: 30,
+  kadarImam: 15, kadarBilal: 10, zon: 'SGR01', pin: '1234',
+  namaMasjid: 'Masjid Attendance Pro', alamat: '', logoMasjid: null
+});
+let staff = LS.get('pk_staff', [
+  { id:'S001', nama:'Ustaz Ahmad Fauzi', jawatan:'Imam', pin:'1234', img:avatar('Ustaz Ahmad') },
+  { id:'S002', nama:'En. Rahman', jawatan:'Bilal', pin:'1234', img:avatar('Rahman') },
+  { id:'S003', nama:'Pn. Aisyah', jawatan:'Staff', pin:'1234', img:avatar('Aisyah') }
+]);
+let log = (LS.get('pk_log', []) || []).map(normalizeLogRecord);
+LS.set('pk_log', log);
+let pilih = LS.get('pk_pilih', null);
+let imgData = null, logoData = null, editId = null;
+let isTabletMode = null;
+const modTablet = () => {
+  if (isTabletMode === null) isTabletMode = localStorage.getItem('pk_tablet') === '1';
+  return isTabletMode;
+};
+
+const WAKTU_FALLBACK = { Subuh:'05:45 AM', Syuruk:'07:02 AM', Zohor:'01:15 PM', Asar:'04:38 PM', Maghrib:'07:21 PM', Isyak:'08:33 PM' };
+let waktuSolat = { ...WAKTU_FALLBACK };
+
+// ---------- 4. SUPABASE + OFFLINE QUEUE ----------
+let fb = null, queue = LS.get('pk_queue', []);
+const toRow = r => ({ staff_id:r.staffId, nama:r.nama, jawatan:r.jawatan, tarikh:r.tarikh, masa_in:r.masaIn, masa_out:r.masaOut, open:r.open, kaedah:r.kaedah, gps:r.gps, status_out:r.statusOut, waktu:r.waktu, ts:r.ts });
+const fromRow = x => normalizeLogRecord({ id:x.id, staffId:x.staff_id, nama:x.nama, jawatan:x.jawatan, tarikh:x.tarikh, masaIn:x.masa_in, masaOut:x.masa_out, open:x.open, kaedah:x.kaedah, gps:x.gps, statusOut:x.status_out, waktu:x.waktu, ts:Number(x.ts) });
+
+async function initFB() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { toast('⚠️ Supabase URL/Key tidak dikonfigurasi — mod demo'); return; }
+  try {
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    fb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    await muatSemua();
+    flushQueue();
+    fb.channel('db')
+      .on('postgres_changes', { event:'*', schema:'public', table:'staff' }, () => muatStaff())
+      .on('postgres_changes', { event:'*', schema:'public', table:'kehadiran' }, () => muatKehadiran())
+      .on('postgres_changes', { event:'*', schema:'public', table:'tetapan' }, () => muatTetapan())
+      .subscribe();
+    window.addEventListener('online', () => { toast('🟢 Kembali online — data disync'); flushQueue(); });
+    window.addEventListener('offline', () => toast('📴 Luar talian — rekod disimpan dalam peranti'));
+  } catch(e) { toast('❌ Gagal sambung ke Supabase'); }
+}
+
+async function muatSemua() {
+  try {
+    toast('⏳ Memuat data...');
+    const [s, k, t] = await Promise.all([
+      fb.from('staff').select('*').order('id'),
+      fb.from('kehadiran').select('*').order('ts', { ascending: false }),
+      fb.from('tetapan').select('data').eq('id',1).maybeSingle()
+    ]);
+    if (s.data) staff = s.data;
+    if (k.data) log = k.data.map(fromRow);
+    if (t.data && t.data.data) tetapan = { ...tetapan, ...t.data.data };
+    renderMasjid();
+    toast('✅ Data dimuat');
+  } catch(e) { toast('❌ Gagal memuat data'); }
+}
+
+async function muatStaff() { try { const r = await fb.from('staff').select('*').order('id'); if (r.data) { staff = r.data; renderLogin(); semakSesi(); renderProfil(); renderSolat(); renderSenaraiStaff(); } } catch(e) {} }
+async function muatKehadiran() { try { const r = await fb.from('kehadiran').select('*').order('ts', { ascending: false }); if (r.data) { log = r.data.map(fromRow); renderLog(); renderSolat(); renderLaporan(); } } catch(e) {} }
+async function muatTetapan() { try { const r = await fb.from('tetapan').select('data').eq('id',1).maybeSingle(); if (r.data && r.data.data) { tetapan = { ...tetapan, ...r.data.data }; renderWaktu(); isiTetapan(); renderMasjid(); } } catch(e) {} }
+
+function qPush(op) { queue.push(op); LS.set('pk_queue', queue); }
+function runOp(op) {
+  if (op.t === 'staff_up') return fb.from('staff').upsert(op.p);
+  if (op.t === 'staff_del') return fb.from('staff').delete().eq('id', op.p.id);
+  if (op.t === 'keh_insert') return fb.from('kehadiran').insert(op.p);
+  if (op.t === 'keh_update') return fb.from('kehadiran').update(op.p.upd).eq('ts', op.p.ts);
+  if (op.t === 'keh_del') return fb.from('kehadiran').delete().eq('ts', op.p.ts);
+  if (op.t === 'tetap_up') return fb.from('tetapan').upsert({ id:1, data:op.p });
+  return Promise.resolve({ error: null });
+}
+async function flushQueue() {
+  if (!fb || !queue.length) return;
+  const q = [...queue]; queue = []; LS.set('pk_queue', queue);
+  for (const op of q) {
+    const { error } = await runOp(op);
+    if (error) { queue.unshift(op); LS.set('pk_queue', queue); break; }
+  }
+  if (!queue.length) toast('✅ Data offline disync');
+}
+
+async function simpanStaffFB(s) {
+  if (!fb) { const i = staff.findIndex(x => x.id === s.id); if (i>-1) staff[i] = s; else staff.push(s); LS.set('pk_staff', staff); return; }
+  try {
+    const { error } = await runOp({ t:'staff_up', p:s });
+    if (error) { const i = staff.findIndex(x => x.id === s.id); if (i>-1) staff[i] = s; else staff.push(s); qPush({ t:'staff_up', p:s }); toast('📴 Disimpan offline'); }
+    else { const i = staff.findIndex(x => x.id === s.id); if (i>-1) staff[i] = s; else staff.push(s); }
+  } catch(e) { toast('❌ Gagal simpan staff'); }
+}
+
+async function hapusStaffFB(id) {
+  if (!fb) { staff = staff.filter(x => x.id !== id); LS.set('pk_staff', staff); return; }
+  try {
+    const { error } = await runOp({ t:'staff_del', p:{ id } });
+    if (error) { staff = staff.filter(x => x.id !== id); qPush({ t:'staff_del', p:{ id } }); }
+    else staff = staff.filter(x => x.id !== id);
+  } catch(e) { toast('❌ Gagal padam staff'); }
+}
+
+async function tambahKehadiran(r) {
+  r.ts = Date.now();
+  if (!fb) { r.id = 'L'+r.ts; log.unshift(r); LS.set('pk_log', log); return; }
+  try {
+    const row = toRow(r);
+    const { data, error } = await fb.from('kehadiran').insert(row).select().maybeSingle();
+    if (error || !data) { r.id = 'L'+r.ts; log.unshift(r); qPush({ t:'keh_insert', p:row }); toast('📴 Disimpan offline'); }
+    else log.unshift(fromRow(data));
+  } catch(e) { r.id = 'L'+r.ts; log.unshift(r); LS.set('pk_log', log); toast('📴 Disimpan offline'); }
+}
+
+async function kemaskiniKehadiran(id, r) {
+  if (!fb) { const i = log.findIndex(l => l.id === id); if (i>-1) { log[i] = { ...log[i], ...r }; LS.set('pk_log', log); } return; }
+  try {
+    const rec = log.find(l => l.id === id); const ts = rec ? rec.ts : null;
+    const upd = {};
+    if ('masaOut' in r) upd.masa_out = r.masaOut;
+    if ('open' in r) upd.open = r.open;
+    if ('statusOut' in r) upd.status_out = r.statusOut;
+    const { error } = await runOp({ t:'keh_update', p:{ ts, upd } });
+    const i = log.findIndex(l => l.id === id);
+    if (i>-1) log[i] = { ...log[i], ...r };
+    if (error) qPush({ t:'keh_update', p:{ ts, upd } });
+  } catch(e) { const i = log.findIndex(l => l.id === id); if (i>-1) { log[i] = { ...log[i], ...r }; LS.set('pk_log', log); } }
+}
+
+async function hapusKehadiranFB(id) {
+  if (!fb) { log = log.filter(l => l.id !== id); LS.set('pk_log', log); return; }
+  const rec = log.find(l => l.id === id);
+  const ts = rec ? rec.ts : null;
+  const { error } = await runOp({ t:'keh_del', p:{ ts } });
+  if (error) { qPush({ t:'keh_del', p:{ ts } }); }
+  else { log = log.filter(l => l.id !== id); }
+}
+
+async function simpanTetapanFB() {
+  if (!fb) { LS.set('pk_tetapan', tetapan); return; }
+  try {
+    const { error } = await runOp({ t:'tetap_up', p:tetapan });
+    if (error) { LS.set('pk_tetapan', tetapan); qPush({ t:'tetap_up', p:tetapan }); }
+  } catch(e) { LS.set('pk_tetapan', tetapan); qPush({ t:'tetap_up', p:tetapan }); }
+}
+
+// ---------- 5. WAKTU SOLAT ----------
+async function muatWaktu() {
+  if (!tetapan.zon) { toast('⚠️ Zon JAKIM tidak ditetapkan'); renderWaktu(); return; }
+  const key = 'pk_waktu_'+tetapan.zon+'_'+hariIni();
+  const c = LS.get(key, null);
+  if (c) { waktuSolat = normalizeWaktuSolat(c); LS.set(key, waktuSolat); renderWaktu(); return; }
+  try {
+    let j = null;
+    try {
+      const r = await fetch(`https://api.e-solat.gov.my/index.php?r=clim/prayerTimes&zone=${encodeURIComponent(tetapan.zon)}`);
+      if (r.ok) j = await r.json();
+    } catch(e) {}
+    if (!j) {
+      try {
+        const r2 = await fetch('/api/waktu-solat?zon='+encodeURIComponent(tetapan.zon));
+        j = await r2.json();
+      } catch(e2) {
+        if (fb) {
+          const r3 = await fetch(SUPABASE_URL+'/functions/v1/waktu-solat?zon='+encodeURIComponent(tetapan.zon));
+          j = await r3.json();
+        }
+      }
+    }
+    const d = j?.data?.[0] || j?.prayerTime?.[0];
+    if (d) {
+      waktuSolat = normalizeWaktuSolat({
+        Subuh: to24(d.fajr), Syuruk: to24(d.syuruk), Zohor: to24(d.dhuhr),
+        Asar: to24(d.asr), Maghrib: to24(d.maghrib), Isyak: to24(d.isha)
+      });
+      LS.set(key, waktuSolat);
+    }
+  } catch(e) {}
+  renderWaktu();
+}
+
+// ---------- 6. GEOFENCING ----------
+function semakGPS() {
+  return new Promise(res => {
+    if (!navigator.geolocation) return res({ ok:false, jarak:99999 });
+    navigator.geolocation.getCurrentPosition(
+      p => {
+        const j = haversine(p.coords.latitude, p.coords.longitude, tetapan.lat, tetapan.lng);
+        res({ ok: j <= tetapan.radius, jarak: j });
+      },
+      () => res({ ok:false, jarak:99999 }),
+      { enableHighAccuracy:true, timeout:8000 }
+    );
+  });
+}
+
+// ---------- 7. CLOCK IN / OUT ----------
+const staffPilih = () => staff.find(s => s.id === pilih);
+const solatRole = j => j === 'Imam' || j === 'Bilal';
+
+$('#btnIn').onclick = async () => {
+  const s = staffPilih();
+  if (!s) return toast('❌ Sila pilih profil staff dahulu');
+  if (solatRole(s.jawatan)) return toast('🕌 Imam/Bilal: sila guna tab SOLAT');
+  if (log.some(l => l.staffId === s.id && l.open && l.tarikh === hariIni())) return toast('⚠️ Sesi hari ini masih terbuka');
+  let kaedah = 'hp', gps = 'GPS Disahkan';
+  if (!modTablet()) {
+    const g = await semakGPS();
+    if (!g.ok) return toast(`❌ Luar zon pejabat (${Math.round(g.jarak)}m)`);
+  } else { kaedah = 'tablet'; gps = 'Tablet Kiosk'; }
+  await tambahKehadiran({
+    staffId:s.id, nama:s.nama, jawatan:s.jawatan, tarikh:hariIni(),
+    masaIn:masaKini(), open:true, kaedah, gps, masaOut:null, statusOut:null, waktu:null
+  });
+  renderLog(); toast('✅ Clock In berjaya — '+s.nama);
+};
+
+$('#btnOut').onclick = async () => {
+  const s = staffPilih();
+  if (!s) return toast('❌ Sila pilih profil staff dahulu');
+  const sesiBuka = log.find(l => l.staffId === s.id && l.open);
+  if (!sesiBuka) return toast('⚠️ Tiada sesi terbuka');
+  await kemaskiniKehadiran(sesiBuka.id, { open:false, masaOut:masaKini(), statusOut:'MANUAL' });
+  renderLog(); toast('🚪 Clock Out berjaya');
+};
+
+// ---------- 8. CLOCK IN SOLAT ----------
+function statusWaktuSolat(waktu) {
+  const tM = toMin(waktuSolat[waktu] || '00:00');
+  const nowMin = toMin(masaKini());
+  const sebelum = tM - 30;
+  if (nowMin < sebelum) return 'belum';
+  if (nowMin >= sebelum && nowMin < tM + tetapan.durasiSolat) return 'boleh';
+  return 'tutup';
+}
+
+async function clockInSolat(waktu) {
+  const s = staffPilih();
+  if (!s || !solatRole(s.jawatan)) return toast('❌ Pilih profil Imam/Bilal');
+  if (log.some(l => l.staffId === s.id && l.waktu === waktu && l.tarikh === hariIni())) return toast('⚠️ Sudah direkod untuk '+waktu);
+  const st = statusWaktuSolat(waktu);
+  if (st === 'belum') return toast('⏳ Belum masuk waktu '+waktu);
+  if (st === 'tutup') return toast('❌ Waktu '+waktu+' sudah ditutup');
+  let kaedah = 'hp', gps = 'Zon Masjid';
+  if (!modTablet()) {
+    const g = await semakGPS();
+    if (!g.ok) return toast(`❌ Luar zon masjid (${Math.round(g.jarak)}m)`);
+  } else { kaedah = 'tablet'; gps = 'Tablet Kiosk'; }
+  await tambahKehadiran({
+    staffId:s.id, nama:s.nama, jawatan:s.jawatan, tarikh:hariIni(),
+    masaIn:masaKini(), open:true, kaedah, gps, masaOut:null, statusOut:null, waktu
+  });
+  renderLog(); renderSolat(); toast('✅ Clock In '+waktu+' direkodkan');
+}
+
+// ---------- 9. RENDER ----------
+function renderMasjid() {
+  const nama = tetapan.namaMasjid || 'Masjid Attendance Pro';
+  $('#namaMasjidHeader').textContent = nama;
+  const loginTitle = $('#loginTitle');
+  if (loginTitle) loginTitle.textContent = nama;
+  const logoHTML = tetapan.logoMasjid ? `<img src="${tetapan.logoMasjid}">` : '🕌';
+  $('#logoHeader').innerHTML = logoHTML;
+  $('#logoLogin').innerHTML = logoHTML;
+  renderMasjidPreview();
+}
+
+function renderMasjidPreview() {
+  const preview = $('#logoPreview');
+  if (!preview) return;
+  preview.innerHTML = ((logoData || tetapan.logoMasjid) ? `<img src="${logoData || tetapan.logoMasjid}">` : '🕌') +
+    '<input type="file" id="fileLogo" accept="image/*" hidden>';
+  preview.onclick = () => $('#fileLogo').click();
+  $('#fileLogo').onchange = handleLogo;
+}
+
+function handleLogo(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 2*1024*1024) return toast('⚠️ Saiz logo melebihi 2MB');
+  const r = new FileReader();
+  r.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 256;
+      const ctx = c.getContext('2d');
+      const sz = Math.min(img.width, img.height);
+      const sx = (img.width - sz)/2, sy = (img.height - sz)/2;
+      ctx.drawImage(img, sx, sy, sz, sz, 0, 0, 256, 256);
+      logoData = c.toDataURL('image/jpeg', 0.85);
+      renderMasjidPreview();
+    };
+    img.src = ev.target.result;
+  };
+  r.readAsDataURL(f);
+}
+
+function setStaffActive(id) {
+  pilih = id;
+  LS.set('pk_pilih', pilih);
+  renderProfil();
+  renderLog();
+  renderSolat();
+  renderLaporan();
+}
+
+function renderProfil() {
+  const box = $('#gridProfil');
+  if (modTablet()) {
+    box.style.display = 'grid';
+    box.innerHTML = staff.map(s => `
+      <div class="profil ${pilih === s.id ? 'pilih' : ''}" data-id="${s.id}">
+        <img src="${s.img || avatar(s.nama)}">
+        <div class="nm">${s.nama}</div>
+        <div class="jw">ID: ${s.id}</div>
+        <div class="jw">${s.jawatan}</div>
+      </div>
+    `).join('');
+    box.querySelectorAll('.profil').forEach(el => {
+      el.onclick = () => setStaffActive(el.dataset.id);
+    });
+  } else {
+    box.style.display = 'block';
+    const s = staff.find(x => x.id === pilih);
+    if (!s) {
+      box.innerHTML = '<p class="muktamad" style="padding:12px;">Sila log masuk atau pilih staff.</p>';
+      return;
+    }
+    box.innerHTML = `
+      <div class="kad" style="padding:14px;display:flex;gap:14px;align-items:center;">
+        <img src="${s.img || avatar(s.nama)}" style="width:64px;height:64px;border-radius:50%;border:3px solid #34d399;object-fit:cover;">
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:700;">${s.nama}</div>
+          <div style="font-size:12px;color:var(--gray);">ID: ${s.id}</div>
+          <div style="font-size:12px;color:var(--gray);">${s.jawatan}</div>
+        </div>
+        <button id="btnLogout" style="background:#fee2e2;color:var(--red);border:none;border-radius:10px;padding:8px 16px;font-weight:700;cursor:pointer;">Keluar</button>
+      </div>
+    `;
+    $('#btnLogout').onclick = keluar;
+  }
+}
+
+function renderWaktu() {
+  $('#zonLabel').textContent = tetapan.zon;
+  const nowMin = toMin(masaKini());
+  let semasa = 'Subuh';
+  for (const w of ['Subuh','Syuruk','Zohor','Asar','Maghrib','Isyak']) {
+    if (toMin(waktuSolat[w] || '00:00') <= nowMin) semasa = w;
+  }
+  $('#senaraiWaktu').innerHTML = ['Subuh','Syuruk','Zohor','Asar','Maghrib','Isyak'].map(w =>
+    `<div class="wrow ${w === semasa ? 'semasa' : ''}"><span>${w}</span><b>${to12(waktuSolat[w])}</b></div>`
+  ).join('');
+}
+
+function barisLog(r) {
+  return `<div class="logrow">
+    <b>${r.nama}</b>
+    ${r.waktu ? `<span class="pill in">🕌 ${r.waktu}</span>` : ''}
+    <span class="pill in">IN ${to12(r.masaIn)}</span>
+    ${r.masaOut ? `<span class="pill out">OUT ${to12(r.masaOut)}</span>` : ''}
+    ${r.statusOut === 'AUTO' ? '<span class="pill auto">AUTO</span>' : ''}
+    <span class="pill gps">${r.kaedah === 'tablet' ? '🖥 Tablet' : ' GPS'} • ${r.gps}</span>
+    <span style="color:var(--gray);font-size:11px;">${r.tarikh}</span>
+  </div>`;
+}
+
+function renderLog() {
+  const data = modTablet() ? log : log.filter(l => l.staffId === pilih);
+  $('#logUtama').innerHTML = data.slice(0,5).map(barisLog).join('') || '<p class="muktamad">Tiada log lagi</p>';
+  $('#logPenuh').innerHTML = data.map(barisLog).join('') || '<p class="muktamad">Tiada log lagi</p>';
+}
+
+function renderSolat() {
+  const s = staffPilih();
+  const box = $('#kadSolat');
+  const ib = staff.filter(x => solatRole(x.jawatan));
+  if (!s || !solatRole(s.jawatan)) {
+    box.innerHTML = `
+      <div class="tajuk">🕌 Tugasan Waktu Solat — Imam & Bilal</div>
+      <p class="muktamad" style="margin-bottom:10px;">Sila pilih profil Imam/Bilal:</p>
+      ${ib.map(x => `<div class="scard" data-p="${x.id}" style="cursor:pointer;"><b>${x.nama}</b><span class="st">${x.jawatan}</span></div>`).join('')}
+    `;
+    box.querySelectorAll('[data-p]').forEach(el => {
+      el.onclick = () => { setStaffActive(el.dataset.p); };
+    });
+    return;
+  }
+  const kadar = s.jawatan === 'Imam' ? tetapan.kadarImam : tetapan.kadarBilal;
+  const today = hariIni(), nowMin = toMin(masaKini());
+  const recHari = log.filter(l => l.staffId === s.id && l.tarikh === today && l.waktu).length;
+  const recBulan = log.filter(l => l.staffId === s.id && l.tarikh.startsWith(bulanKini()) && l.waktu).length;
+  let html = `
+    <div class="tajuk">🕌 Tugasan Waktu Solat — ${s.jawatan}</div>
+    <div class="scard">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <img src="${s.img || avatar(s.nama)}" style="width:52px;height:52px;border-radius:50%;">
+        <div><b>${s.nama}</b><br><span class="st">${s.jawatan}</span></div>
+      </div>
+      <span class="badge-zon">📍 ${tetapan.radius}m</span>
+    </div>
+  `;
+  for (const w of ['Subuh','Zohor','Asar','Maghrib','Isyak']) {
+    const rec = log.find(l => l.staffId === s.id && l.tarikh === today && l.waktu === w);
+    const st = statusWaktuSolat(w);
+    const dalamWindow = st === 'boleh';
+    const tM = toMin(waktuSolat[w] || '00:00');
+    const sebelumWindow = st === 'boleh' && nowMin < tM;
+    let kanan = '';
+    if (rec) {
+      kanan = `<div class="st">✅ Hadir ${to12(rec.masaIn)}${rec.masaOut ? ' → '+to12(rec.masaOut) : ''}</div>`;
+    } else if (dalamWindow) {
+      kanan = `<button class="btn2" style="width:auto;padding:9px 18px;" data-w="${w}">${sebelumWindow ? 'Clock In (30 min sebelum)' : 'Clock In'}</button>`;
+    } else if (st === 'belum') {
+      kanan = `<span class="st">⏳ ${to12(waktuSolat[w])}</span>`;
+    } else {
+      kanan = `<span class="st" style="color:var(--red);font-weight:700;">❌ Tidak Bertugas</span>`;
+    }
+    html += `<div class="scard"><b>${w}</b>${kanan}</div>`;
+  }
+  html += `<div class="elaun-kad">Elaun Hari Ini: <b>RM ${recHari * kadar}</b> (${recHari} × RM ${kadar})<br>Jumlah Bulanan: <b>RM ${recBulan * kadar}</b> / ${recBulan} waktu</div>`;
+  box.innerHTML = html;
+  box.querySelectorAll('[data-w]').forEach(b => b.onclick = () => clockInSolat(b.dataset.w));
+}
+
+function renderLaporan() {
+  const bln = $('#bulanPilih').value || bulanKini();
+  const hariBulan = (bln === bulanKini()) ? +hariIni().slice(8) : [31,28,31,30,31,30,31,31,30,31,30,31][+bln.slice(5)-1];
+  const jangkaSolat = hariBulan * 5;
+  const namaB = new Intl.DateTimeFormat('ms-MY', { month:'long', year:'numeric' }).format(new Date(bln + '-15'));
+  if (!modTablet()) {
+    const s = staff.find(x => x.id === pilih);
+    if (!s) { $('#laporan').innerHTML = ''; return; }
+    const rec = log.filter(l => l.staffId === s.id && l.tarikh.startsWith(bln));
+    let isi = '';
+    if (!solatRole(s.jawatan)) {
+      const hari = new Set(rec.filter(r => r.masaIn).map(r => r.tarikh)).size;
+      isi = `
+        <div style="font-size:38px;font-weight:800;color:var(--primary-light);">${hari} hari</div>
+        <div class="muktamad">Jumlah hari hadir</div>
+        <div class="bar" style="margin-top:10px;"><i style="width:${Math.min(100, hari/hariBulan*100)}%;"></i></div>
+      `;
+    } else {
+      const w = rec.filter(r => r.waktu).length;
+      isi = `
+        <div style="font-size:38px;font-weight:800;color:var(--primary-light);">${w} waktu</div>
+        <div class="muktamad">daripada ${jangkaSolat} waktu solat</div>
+        <div class="bar" style="margin-top:10px;"><i style="width:${Math.min(100, w/jangkaSolat*100)}%;"></i></div>
+        <div class="elaun-kad" style="margin-top:14px;">Elaun ${namaB}: <b>RM ${w * (s.jawatan==='Imam'?tetapan.kadarImam:tetapan.kadarBilal)}</b> (RM ${s.jawatan==='Imam'?tetapan.kadarImam:tetapan.kadarBilal} / waktu)</div>
+      `;
+    }
+    $('#laporan').innerHTML = `
+      <div class="kad" style="padding:16px;text-align:center;">
+        <div class="tajuk" style="text-align:center;">Kehadiran Saya — ${namaB}</div>
+        ${isi}
+      </div>
+    `;
+    return;
+  }
+  // Tablet mode: jadual semua staff
+  let html = `<table><tr><th>Nama</th><th>Jawatan</th><th>Kehadiran</th><th>Elaun (RM)</th></tr>`;
+  for (const s of staff) {
+    const rec = log.filter(l => l.staffId === s.id && l.tarikh.startsWith(bln));
+    if (!solatRole(s.jawatan)) {
+      const hari = new Set(rec.filter(r => r.masaIn).map(r => r.tarikh)).size;
+      html += `<tr><td>${s.nama}</td><td>${s.jawatan}</td><td>${hari} hari<div class="bar"><i style="width:${Math.min(100, hari/hariBulan*100)}%;"></i></div></td><td>—</td></tr>`;
+    } else {
+      const w = rec.filter(r => r.waktu).length;
+      html += `<tr><td>${s.nama}</td><td>${s.jawatan}</td><td>${w}/${jangkaSolat} waktu<div class="bar"><i style="width:${Math.min(100, w/jangkaSolat*100)}%;"></i></div></td><td><b>RM ${w * (s.jawatan==='Imam'?tetapan.kadarImam:tetapan.kadarBilal)}</b></td></tr>`;
+    }
+  }
+  $('#laporan').innerHTML = html + '</table><p class="muktamad">Staff biasa dikira ikut hari • Imam/Bilal ikut waktu solat</p>';
+}
+
+function renderSenaraiStaff() {
+  $('#senaraiStaff').innerHTML = staff.map(s => `
+    <div class="staff-item">
+      <img src="${s.img || avatar(s.nama)}">
+      <div><b>${s.nama}</b><br><span class="st">${s.jawatan} • ${s.id} • PIN: ${s.pin || '1234'}</span></div>
+      <div class="act">
+        <button class="btn-edit" data-e="${s.id}">Edit</button>
+        <button class="btn-del" data-h="${s.id}">Padam</button>
+      </div>
+    </div>
+  `).join('');
+  $$('[data-h]').forEach(b => b.onclick = async () => {
+    const ok = await confirmDialog('Padam staff?', 'Anda pasti mahu memadam staff ini?');
+    if (ok) { await hapusStaffFB(b.dataset.h); renderSenaraiStaff(); renderSolat(); renderLogin(); renderProfil(); }
+  });
+  $$('[data-e]').forEach(b => b.onclick = () => mulaEdit(b.dataset.e));
+}
+
+function mulaEdit(id) {
+  const s = staff.find(x => x.id === id); if (!s) return;
+  editId = id;
+  $('#fNama').value = s.nama; $('#fId').value = s.id; $('#fId').disabled = true;
+  $('#fJawatan').value = s.jawatan; $('#fPin').value = s.pin || '1234';
+  imgData = null;
+  if (s.img) {
+    $('#avatarUp').innerHTML = `<img src="${s.img}"><input type="file" id="fileGambar" accept="image/*" hidden>`;
+    $('#avatarUp').onclick = () => $('#fileGambar').click();
+    $('#fileGambar').onchange = handleAvatar;
+  }
+  $('#staffFormTitle').textContent = 'Edit Profil: '+s.nama;
+  $('#btnBatalEdit').style.display = 'block';
+}
+
+function batalEdit() {
+  editId = null;
+  $('#fNama').value = $('#fId').value = $('#fPin').value = '';
+  $('#fId').disabled = false;
+  $('#fJawatan').value = '';
+  imgData = null;
+  $('#avatarUp').innerHTML = '📷<input type="file" id="fileGambar" accept="image/*" hidden>';
+  $('#avatarUp').onclick = () => $('#fileGambar').click();
+  $('#fileGambar').onchange = handleAvatar;
+  $('#staffFormTitle').textContent = 'Daftar Staff Baru';
+  $('#btnBatalEdit').style.display = 'none';
+}
+
+function isiTetapan() {
+  $('#tLat').value = tetapan.lat; $('#tLng').value = tetapan.lng; $('#tRadius').value = tetapan.radius;
+  $('#tDurasi').value = tetapan.durasiSolat;
+  $('#tImam').value = tetapan.kadarImam; $('#tBilal').value = tetapan.kadarBilal; $('#tZon').value = tetapan.zon;
+  $('#modLabel').textContent = (modTablet() ? '🖥 Peranti: TABLET KIOSK (tanpa login)' : '📱 Peranti: Handphone (login staff)') +
+    (fb ? ' • ☁️ Supabase (Offline-ready)' : ' • 💾 Mod Demo (local)');
+}
+
+// ---------- 10. FUNGSI TAMBAHAN: AUTO DETECT ----------
+async function autoDetectLocation() {
+  toast('⏳ Mengesan lokasi...');
+  try {
+    const pos = await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
+    });
+    const lat = pos.coords.latitude.toFixed(6);
+    const lng = pos.coords.longitude.toFixed(6);
+    $('#tLat').value = lat;
+    $('#tLng').value = lng;
+    toast(`✅ Lokasi: ${lat}, ${lng}`);
+  } catch (e) {
+    toast('❌ Gagal mengesan lokasi. Pastikan GPS dihidupkan.');
+  }
+}
+
+// ---------- 11. ADMIN ----------
+function bukaKunciAdmin() {
+  $('#pinGate').hidden = true; $('#adminBody').hidden = false;
+  isiTetapan(); renderSenaraiStaff(); renderMasjid(); isiManualStaff(); isiEditStaff();
+  $('#tNamaMasjid').value = tetapan.namaMasjid || ''; $('#tAlamat').value = tetapan.alamat || '';
+  $('#editTarikh').value = hariIni();
+}
+
+$('#btnPin').onclick = () => {
+  if ($('#pinInput').value === tetapan.pin) bukaKunciAdmin();
+  else toast('❌ PIN salah');
+};
+$('#btnLock').onclick = () => { $('#pinGate').hidden = false; $('#adminBody').hidden = true; };
+
+$('#avatarUp').onclick = () => $('#fileGambar').click();
+function handleAvatar(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = 128; c.height = 128 * img.height / img.width;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      imgData = c.toDataURL('image/jpeg', 0.8);
+      $('#avatarUp').innerHTML = `<img src="${imgData}"><input type="file" id="fileGambar" accept="image/*" hidden>`;
+      $('#avatarUp').onclick = () => $('#fileGambar').click();
+      $('#fileGambar').onchange = handleAvatar;
+    };
+    img.src = ev.target.result;
+  };
+  r.readAsDataURL(f);
+}
+$('#fileGambar').onchange = handleAvatar;
+
+$('#btnSimpanStaff').onclick = async () => {
+  const nama = $('#fNama').value.trim(), id = $('#fId').value.trim(), jw = $('#fJawatan').value;
+  if (!nama || !id || !jw) return toast('❌ Lengkapkan semua medan');
+  if (!editId && staff.some(s => s.id === id)) return toast('❌ ID staff sudah wujud');
+  const existing = editId ? staff.find(s => s.id === editId) : null;
+  const img = imgData || (existing?.img) || avatar(nama);
+  const pin = $('#fPin').value.trim() || '1234';
+  await simpanStaffFB({ id, nama, jawatan: jw, pin, img });
+  batalEdit();
+  renderSenaraiStaff(); renderSolat(); renderLogin(); renderProfil();
+  toast('✅ Profil staff disimpan');
+};
+
+$('#btnBatalEdit').onclick = batalEdit;
+
+$('#btnSimpanMasjid').onclick = async () => {
+  const nama = $('#tNamaMasjid').value.trim();
+  if (!nama) return toast('❌ Sila isi nama masjid');
+  tetapan = { ...tetapan, namaMasjid: nama, alamat: $('#tAlamat').value.trim() };
+  if (logoData) tetapan.logoMasjid = logoData;
+  await simpanTetapanFB(); renderMasjid(); logoData = null; toast('✅ Info masjid disimpan');
+};
+
+$('#btnSimpanTetapan').onclick = async () => {
+  tetapan = {
+    ...tetapan,
+    lat: +$('#tLat').value, lng: +$('#tLng').value, radius: +$('#tRadius').value,
+    durasiSolat: +$('#tDurasi').value, kadarImam: +$('#tImam').value, kadarBilal: +$('#tBilal').value,
+    zon: $('#tZon').value || 'SGR01'
+  };
+  const p = $('#tPin').value.trim(); if (p) tetapan.pin = p;
+  await simpanTetapanFB(); muatWaktu(); isiTetapan(); toast('✅ Tetapan disimpan');
+};
+
+$('#btnTablet').onclick = () => {
+  if (localStorage.getItem('pk_tablet') === '1') localStorage.removeItem('pk_tablet');
+  else localStorage.setItem('pk_tablet', '1');
+  isTabletMode = null;
+  semakSesi();
+  renderProfil();
+  renderLog();
+  renderSolat();
+  renderLaporan();
+  isiTetapan();
+  toast('✅ Mod peranti dikemas kini');
+};
+
+$('#btnAutoLoc').onclick = autoDetectLocation;
+
+function isiManualStaff() {
+  const ib = staff.filter(s => solatRole(s.jawatan));
+  $('#manualStaff').innerHTML = '<option value="">-- Pilih --</option>' +
+    ib.map(s => `<option value="${s.id}">${s.nama} (${s.jawatan})</option>`).join('');
+}
+
+$('#btnManualClockIn').onclick = async () => {
+  const staffId = $('#manualStaff').value, waktu = $('#manualWaktu').value, masaInput = $('#manualMasa').value.trim();
+  if (!staffId || !waktu || !masaInput) return toast('❌ Lengkapkan semua medan');
+  const s = staff.find(x => x.id === staffId);
+  if (!s) return toast('❌ Staff tidak dijumpai');
+  if (!solatRole(s.jawatan)) return toast('❌ Hanya untuk Imam/Bilal');
+  if (log.some(l => l.staffId === staffId && l.waktu === waktu && l.tarikh === hariIni())) return toast('⚠️ Sudah direkod untuk '+waktu);
+  const masa24 = to24(masaInput);
+  if (!masa24 || masa24 === masaInput) return toast('❌ Format masa tidak sah');
+  await tambahKehadiran({
+    staffId:s.id, nama:s.nama, jawatan:s.jawatan, tarikh:hariIni(),
+    masaIn:masaInput, open:true, kaedah:'admin', gps:'Admin Manual', masaOut:null, statusOut:null, waktu
+  });
+  $('#manualStaff').value = ''; $('#manualWaktu').value = ''; $('#manualMasa').value = '';
+  renderLog(); renderSolat(); renderSenaraiStaff(); toast('✅ Clock In manual berjaya — '+s.nama+' ('+waktu+')');
+};
+
+function isiEditStaff() {
+  $('#editStaff').innerHTML = '<option value="">-- Pilih --</option>' +
+    staff.map(s => `<option value="${s.id}">${s.nama} (${s.jawatan})</option>`).join('');
+}
+
+function renderSenaraiEditKehadiran() {
+  const staffId = $('#editStaff').value, tarikh = $('#editTarikh').value;
+  if (!staffId || !tarikh) { $('#senaraiEditKehadiran').innerHTML = ''; return; }
+  const recs = log.filter(l => l.staffId === staffId && l.tarikh === tarikh).slice().sort((a,b) => a.ts - b.ts);
+  if (!recs.length) { $('#senaraiEditKehadiran').innerHTML = '<p class="muktamad">Tiada rekod untuk tarikh ini</p>'; return; }
+  $('#senaraiEditKehadiran').innerHTML = recs.map(r => `
+    <div class="logrow" style="cursor:pointer;" data-id="${r.id}">
+      <b>${r.nama}</b> ${r.waktu ? `<span class="pill in">🕌 ${r.waktu}</span>` : ''}
+      <span class="pill in">IN ${to12(r.masaIn)}</span>
+      ${r.masaOut ? `<span class="pill out">OUT ${to12(r.masaOut)}</span>` : ''}
+      <span style="color:var(--gray);font-size:11px;">ID: ${r.id}</span>
+    </div>
+  `).join('');
+  $$('#senaraiEditKehadiran [data-id]').forEach(el => {
+    el.onclick = () => {
+      const rec = log.find(l => l.id === el.dataset.id);
+      if (rec) {
+        $('#editMasaIn').value = to12(rec.masaIn);
+        $('#editMasaOut').value = rec.masaOut ? to12(rec.masaOut) : '';
+        toast('Rekod dipilih: '+rec.id);
+      }
+    };
+  });
+}
+
+$('#editStaff').onchange = renderSenaraiEditKehadiran;
+$('#editTarikh').onchange = renderSenaraiEditKehadiran;
+
+// ---------- TIME PICKER MODAL ----------
+function initTimePicker(inputId, pickerId) {
+  const input = $('#'+inputId), picker = $('#'+pickerId);
+  if (!input || !picker) return;
+  let selectedH = 12, selectedM = 0, selectedAP = 'AM';
+
+  function buildPicker() {
+    const hours = [...Array(12)].map((_,i) => (i+1).toString().padStart(2,'0'));
+    const mins = ['00','15','30','45'];
+    const hSel = hours.map(h => `<option value="${h}" ${h === String(selectedH).padStart(2,'0') ? 'selected' : ''}>${h}</option>`).join('');
+    const mSel = mins.map(m => `<option value="${m}" ${m === selectedM ? 'selected' : ''}>${m}</option>`).join('');
+    const apSel = ['AM','PM'].map(a => `<option value="${a}" ${a === selectedAP ? 'selected' : ''}>${a}</option>`).join('');
+    picker.innerHTML = `
+      <div class="modal-content">
+        <div class="tp-row">
+          <div class="tp-col"><label>Jam</label><select id="tpH">${hSel}</select></div>
+          <div class="tp-col"><label>Minit</label><select id="tpM">${mSel}</select></div>
+          <div class="tp-col"><label>AM/PM</label><select id="tpAP">${apSel}</select></div>
+        </div>
+        <div class="tp-actions">
+          <button class="tp-cancel">Batal</button>
+          <button class="tp-ok">OK</button>
+        </div>
+      </div>
+    `;
+    const hS = picker.querySelector('#tpH'), mS = picker.querySelector('#tpM'), apS = picker.querySelector('#tpAP');
+    hS.onchange = e => { selectedH = parseInt(e.target.value, 10); };
+    mS.onchange = e => { selectedM = e.target.value; };
+    apS.onchange = e => { selectedAP = e.target.value; };
+    picker.querySelector('.tp-ok').onclick = () => {
+      input.value = `${String(selectedH).padStart(2,'0')}:${selectedM} ${selectedAP}`;
+      picker.classList.remove('active');
+    };
+    picker.querySelector('.tp-cancel').onclick = () => picker.classList.remove('active');
+  }
+
+  input.onclick = (e) => {
+    e.stopPropagation();
+    $$('.time-picker-modal.active').forEach(p => p.classList.remove('active'));
+    buildPicker();
+    picker.classList.add('active');
+  };
+  picker.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', () => picker.classList.remove('active'));
+}
+
+// Inisialisasi semua time picker
+initTimePicker('editMasaIn', 'tpInModal');
+initTimePicker('editMasaOut', 'tpOutModal');
+initTimePicker('manualMasa', 'tpManualModal');
+
+$('#btnKemaskiniKehadiran').onclick = async () => {
+  const staffId = $('#editStaff').value, tarikh = $('#editTarikh').value,
+        masaIn = $('#editMasaIn').value.trim(), masaOut = $('#editMasaOut').value.trim();
+  if (!staffId || !tarikh || !masaIn) return toast('❌ Lengkapkan staff, tarikh, masa In');
+  const recs = log.filter(l => l.staffId === staffId && l.tarikh === tarikh);
+  if (!recs.length) return toast('❌ Tiada rekod untuk staff/tarikh ini');
+  const rec = recs[0];
+  const mi = to24(masaIn), mo = masaOut ? to24(masaOut) : null;
+  if (!mi || mi === masaIn) return toast('❌ Format masa In tidak sah');
+  if (masaOut && (!mo || mo === masaOut)) return toast('❌ Format masa Out tidak sah');
+  await kemaskiniKehadiran(rec.id, { masaIn, masaOut: mo, open: !mo, statusOut: mo ? 'MANUAL' : null });
+  renderLog(); renderSolat(); renderLaporan(); renderSenaraiEditKehadiran(); toast('✅ Kehadiran dikemaskini');
+};
+
+$('#btnPadamKehadiran').onclick = async () => {
+  const staffId = $('#editStaff').value, tarikh = $('#editTarikh').value;
+  if (!staffId || !tarikh) return toast('❌ Pilih staff dan tarikh');
+  const recs = log.filter(l => l.staffId === staffId && l.tarikh === tarikh);
+  if (!recs.length) return toast('❌ Tiada rekod untuk padam');
+  const ok = await confirmDialog('Padam SEMUA rekod?', `Anda pasti mahu memadam semua rekod kehadiran untuk staff ini pada ${tarikh}?`);
+  if (ok) {
+    for (const r of recs) await hapusKehadiranFB(r.id);
+    renderLog(); renderSolat(); renderLaporan(); renderSenaraiEditKehadiran(); toast('✅ Rekod dipadam');
+  }
+};
+
+// ---------- 12. PDF ----------
+function eksportPDF(peribadi) {
+  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('❌ Modul PDF belum dimuat');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  if (typeof doc.autoTable !== 'function') return toast('❌ Modul AutoTable tiada');
+  const bln = $('#bulanPilih').value || bulanKini();
+  const namaBulan = new Intl.DateTimeFormat('ms-MY', { month:'long', year:'numeric' }).format(new Date(bln+'-15'));
+  const hariBulan = (bln === bulanKini()) ? +hariIni().slice(8) : [31,28,31,30,31,30,31,31,30,31,30,31][+bln.slice(5)-1];
+  const jangkaSolat = hariBulan * 5;
+  const scope = peribadi ? pilih : null;
+  const staffScope = scope ? staff.filter(s => s.id === scope) : staff;
+  const HIJAU = [6,95,70], EMAS = [201,162,39], KRIM = [246,242,233];
+  const namaMasjid = tetapan.namaMasjid || 'Masjid Attendance Pro';
+  const alamat = tetapan.alamat || '';
+
+  doc.setFillColor(HIJAU[0], HIJAU[1], HIJAU[2]); doc.rect(0,0,210,38,'F');
+  doc.setFillColor(EMAS[0], EMAS[1], EMAS[2]); doc.rect(0,38,210,2,'F');
+  if (tetapan.logoMasjid) {
+    try { doc.addImage(tetapan.logoMasjid, 'JPEG', 14, 6, 26, 26); } catch(e) {}
+  }
+  doc.setTextColor(255,255,255);
+  const xText = tetapan.logoMasjid ? 46 : 105;
+  const align = tetapan.logoMasjid ? 'left' : 'center';
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text(namaMasjid.toUpperCase(), xText, 14, { align });
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.text('MASJID ATTENDANCE PRO', xText, 19, { align });
+  if (alamat) { doc.setFontSize(8); doc.text(alamat, xText, 23, { align }); }
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text((peribadi ? 'Laporan Peribadi — ' : 'Laporan Kehadiran Bulanan — ')+namaBulan, xText, 31, { align });
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(90,90,90);
+  doc.text('Dijana: '+new Date().toLocaleString('ms-MY')+' • Zon JAKIM: '+tetapan.zon, 14, 45);
+
+  const imamBilal = staffScope.filter(s => solatRole(s.jawatan));
+  const kiraW = s => log.filter(l => l.staffId === s.id && l.tarikh.startsWith(bln) && l.waktu).length;
+  const bodyIB = imamBilal.map(s => {
+    const w = kiraW(s);
+    return [s.nama, s.jawatan, w+' / '+jangkaSolat+' waktu', Math.min(100, Math.round(w/jangkaSolat*100))+'%', 'RM '+(w * (s.jawatan==='Imam'?tetapan.kadarImam:tetapan.kadarBilal))];
+  });
+  const jumlahElaun = imamBilal.reduce((a,s) => a + kiraW(s) * (s.jawatan==='Imam'?tetapan.kadarImam:tetapan.kadarBilal), 0);
+  doc.autoTable({
+    startY: 50,
+    head: [['Nama','Jawatan','Kehadiran','Peratus','Jumlah Elaun']],
+    body: bodyIB.length ? bodyIB : [['Tiada data Imam/Bilal','','','','']],
+    foot: imamBilal.length ? [['','','','JUMLAH','RM '+jumlahElaun]] : undefined,
+    headStyles: { fillColor: HIJAU, textColor: 255, fontSize: 9 },
+    footStyles: { fillColor: EMAS, textColor: 40, fontSize: 9 },
+    alternateRowStyles: { fillColor: KRIM },
+    styles: { fontSize: 9, cellPadding: 2.6, textColor: 40 }
+  });
+
+  const staffB = staffScope.filter(s => !solatRole(s.jawatan));
+  if (staffB.length) {
+    const bodySB = staffB.map(s => {
+      const hari = new Set(log.filter(l => l.staffId === s.id && l.tarikh.startsWith(bln) && l.masaIn).map(l => l.tarikh)).size;
+      return [s.nama, s.jawatan, hari+' hari', Math.min(100, Math.round(hari/hariBulan*100))+'%'];
+    });
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 6,
+      head: [['Nama','Jawatan','Jumlah Hari Hadir','Peratus']],
+      body: bodySB,
+      headStyles: { fillColor: HIJAU, textColor: 255, fontSize: 9 },
+      alternateRowStyles: { fillColor: KRIM },
+      styles: { fontSize: 9, cellPadding: 2.6, textColor: 40 }
+    });
+  }
+
+  const logBulan = log.filter(l => l.tarikh.startsWith(bln) && (!scope || l.staffId === scope)).slice().sort((a,b) => a.ts - b.ts);
+  if (logBulan.length) {
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 6,
+      head: [['Tarikh','Nama','Kategori','In','Out','Status','Kaedah']],
+      body: logBulan.map(l => [l.tarikh, l.nama, l.waktu || 'Hari Kerja', to12(l.masaIn), l.masaOut ? to12(l.masaOut) : '-', l.statusOut === 'AUTO' ? 'AUTO' : (l.masaOut ? 'Manual' : 'Aktif'), l.kaedah === 'tablet' ? 'Tablet' : 'GPS HP']),
+      headStyles: { fillColor: [40,40,40], textColor: 255, fontSize: 8.5 },
+      alternateRowStyles: { fillColor: KRIM },
+      styles: { fontSize: 8, cellPadding: 2.2, textColor: 50 },
+      didParseCell: h => { if (h.section === 'body' && h.column.index === 5 && h.cell.raw === 'AUTO') h.cell.styles.textColor = [180,80,0]; }
+    });
+  }
+
+  const n = doc.getNumberOfPages();
+  for (let i=1; i<=n; i++) {
+    doc.setPage(i);
+    if (i === n && doc.lastAutoTable && doc.lastAutoTable.finalY < 240) {
+      doc.setFontSize(8); doc.setTextColor(80,80,80);
+      doc.text('Disahkan oleh:', 14, doc.lastAutoTable.finalY + 15);
+      doc.line(14, doc.lastAutoTable.finalY + 30, 70, doc.lastAutoTable.finalY + 30);
+      doc.text('Pengerusi / Admin Masjid', 14, doc.lastAutoTable.finalY + 35);
+    }
+    doc.setFillColor(HIJAU[0], HIJAU[1], HIJAU[2]); doc.rect(0,291,210,6,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(7.5);
+    doc.text(namaMasjid+' — Masjid Attendance Pro', 14, 294.8);
+    doc.text('Halaman '+i+'/'+n, 196, 294.8, { align:'right' });
+  }
+  doc.save((peribadi ? 'Laporan_Peribadi_' : 'Laporan_') + namaMasjid.replace(/\s+/g,'_') + '_' + bln + '.pdf');
+  toast('✅ PDF dimuat turun');
+}
+
+$('#btnPDF').onclick = () => eksportPDF(!modTablet());
+$('#btnPDF2').onclick = () => eksportPDF(false);
+
+// ---------- 13. LOGIN & NAV & INIT ----------
+function renderLogin() {
+  $('#loginId').innerHTML = staff.map(s => `<option value="${s.id}">${s.nama} (${s.id}) — ${s.jawatan}</option>`).join('') ||
+    '<option value="">Tiada staff berdaftar</option>';
+}
+
+function semakSesi() {
+  const panel = $('#loginPanel');
+  if (modTablet()) {
+    if (panel) panel.hidden = true;
+    return;
+  }
+  if (pilih && staff.some(s => s.id === pilih)) {
+    if (panel) panel.hidden = true;
+  } else {
+    if (panel) panel.hidden = false;
+  }
+  const s = staff.find(x => x.id === pilih);
+  const solatBtn = document.querySelector('#tabbar button[data-tab="solat"]');
+  if (solatBtn) solatBtn.style.display = (s && solatRole(s.jawatan)) ? 'flex' : 'none';
+}
+
+function bukaLogin() {
+  const panel = $('#loginPanel');
+  if (panel) { panel.hidden = false; panel.scrollIntoView({ behavior:'smooth', block:'start' }); }
+  renderLogin();
+}
+
+$('#btnLogin').onclick = () => {
+  const pin = $('#loginPin').value;
+  const s = staff.find(x => x.id === $('#loginId').value);
+  if (s && (s.pin || '1234') === pin) {
+    setStaffActive(s.id);
+    localStorage.setItem('pk_sesi', '1');
+    const panel = $('#loginPanel');
+    if (panel) panel.hidden = true;
+    renderLog(); renderSolat(); renderLaporan();
+    tukarTab(solatRole(s.jawatan) ? 'solat' : 'utama');
+    toast('👋 Selamat datang, '+s.nama);
+    return;
+  }
+  if (pin === tetapan.pin) {
+    bukaKunciAdmin();
+    tukarTab('admin');
+    toast('🔓 Admin berjaya log masuk');
+    return;
+  }
+  toast('❌ PIN salah');
+};
+
+function keluar() {
+  pilih = null;
+  LS.set('pk_pilih', null);
+  $('#loginPin').value = '';
+  semakSesi();
+  renderProfil();
+  renderLog();
+  renderSolat();
+  renderLaporan();
+  toast('👋 Telah keluar');
+}
+
+function tukarTab(t) {
+  $$('#tabbar button').forEach(b => b.classList.toggle('aktif', b.dataset.tab === t));
+  $$('.screen').forEach(s => s.classList.remove('active'));
+  const target = $('#s-'+t);
+  if (target) target.classList.add('active');
+  if (t === 'laporan') renderLaporan();
+  if (t === 'solat') renderSolat();
+}
+
+$$('#tabbar button').forEach(b => b.onclick = () => tukarTab(b.dataset.tab));
+
+$('#bulanPilih').value = bulanKini();
+$('#bulanPilih').onchange = renderLaporan;
+
+// ---------- ACCORDION TOGGLE ----------
+$$('.accordion-header').forEach(header => {
+  header.addEventListener('click', function() {
+    const item = this.parentElement;
+    item.classList.toggle('active');
+    const icon = this.querySelector('.accordion-icon');
+    if (icon) icon.textContent = item.classList.contains('active') ? '▼' : '▶';
+  });
+});
+
+// ---------- CONFIRM DIALOG ----------
+function confirmDialog(title, msg) {
+  return new Promise(resolve => {
+    const modal = $('#confirmModal');
+    $('#confirmTitle').textContent = title || '⚠️';
+    $('#confirmMsg').textContent = msg || 'Adakah anda pasti?';
+    modal.style.display = 'flex';
+    const cleanup = () => {
+      modal.style.display = 'none';
+      $('#confirmYes').onclick = null;
+      $('#confirmNo').onclick = null;
+    };
+    $('#confirmYes').onclick = () => { cleanup(); resolve(true); };
+    $('#confirmNo').onclick = () => { cleanup(); resolve(false); };
+  });
+}
+
+// ---------- INIT ----------
+(function init() {
+  const d = new Date();
+  const hijriMonths = ['Muharram','Safar','Rabiulawwal','Rabiulakhir','Jamadilawwal','Jamadilakhir','Rejab','Syaaban','Ramadan','Syawal','Zulkaedah','Zulhijjah'];
+  let hijri = '';
+  try {
+    const y = d.getFullYear(), m = d.getMonth()+1, dd = d.getDate();
+    const a = Math.floor((11*y+3)/30);
+    const b = Math.floor(y/100);
+    const c = 2 - b + Math.floor(b/4);
+    const e = Math.floor(365.25*(y+4716));
+    const f = Math.floor(30.6001*(m+1));
+    const jd = a + e + f + dd + c - 1524 - 385;
+    const l = jd - 1948440 + 10632;
+    const n = Math.floor((l-1)/10631);
+    const l2 = l - 10631*n + 354;
+    const j = Math.floor((10985-l2)/5316) * Math.floor((50*l2)/17719) + Math.floor(l2/5670) * Math.floor((43*l2)/15238);
+    const l3 = l2 - Math.floor((30-j)/15) * Math.floor((17719*j)/50) - Math.floor(j/16) * Math.floor((15238*j)/43) + 29;
+    const hm = Math.floor((24*l3)/709);
+    const hd = l3 - Math.floor((709*hm)/24);
+    const hy = 30*n + j - 30;
+    hijri = ' / '+hd+' '+hijriMonths[hm-1]+' '+hy+'H';
+  } catch(e) {}
+  $('#tarikhLine').textContent = d.toLocaleDateString('ms-MY', { day:'numeric', month:'long', year:'numeric' }) + hijri;
+
+  const updateLiveClock = () => {
+    const el = $('#masaLive');
+    if (el) el.textContent = to12(masaKini());
+  };
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
+
+  renderMasjid();
+  initFB().then(() => {
+    renderLogin();
+    semakSesi();
+    renderProfil();
+    renderWaktu();
+    renderLog();
+    renderSolat();
+    renderLaporan();
+    muatWaktu();
+  });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('sw.js');
+  }
+})();
+</script>
+</body>
+</html>
