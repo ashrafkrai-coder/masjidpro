@@ -1,6 +1,6 @@
 /* Masjid Attendance Pro — Service Worker v5 (Supabase-ready) */
 const CACHE = 'masjid-pro-v5';
-const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './sw.js'];
+const APP_SHELL = ['/','/index.html', '/manifest.webmanifest', '/icon.svg', '/sw.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -49,22 +49,24 @@ self.addEventListener('fetch', e => {
         const copy = res.clone();
         caches.open(CACHE).then(c => c.put(req, copy));
         return res;
-      }).catch(() => caches.match('./index.html'))
+      }).catch(() => caches.match('/index.html'))
     );
     return;
   }
 
   // 🏠 Aset sama-origin lain: stale-while-revalidate
   e.respondWith(
-    caches.match(req).then(hit => {
-      const net = fetch(req).then(res => {
+    (async () => {
+      const cached = await caches.match(req);
+      const networkFetch = fetch(req).then(res => {
         if (res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy));
         }
         return res;
-      }).catch(() => hit);
-      return hit || net;
-    })
+      }).catch(() => cached);
+      // Return cached immediately if available, otherwise wait for network
+      return cached || networkFetch;
+    })()
   );
 });
