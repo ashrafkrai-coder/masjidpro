@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon.svg">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#065f46">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Kehadiran">
   <title>Masjid Attendance Pro</title>
   <style>
@@ -391,7 +393,7 @@
     .avatar-up { width:96px; height:96px; border-radius:50%; background:#eee; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:32px; overflow:hidden; cursor:pointer; border:2px dashed #9ca3af; }
     .avatar-up img { width:100%; height:100%; object-fit:cover; }
     .time-picker-modal {
-      position: fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(4px); z-index:9999; display:none; align-items:center; justify-content:center; padding:20px;
+      position: fixed; inset:0; background:rgba(0,0,0,0.4); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); z-index:9999; display:none; align-items:center; justify-content:center; padding:20px;
     }
     .time-picker-modal.active { display:flex; }
     .time-picker-modal .modal-content { background:#fff; border-radius:20px; padding:24px; max-width:340px; width:100%; }
@@ -637,9 +639,9 @@
 // ============================================================
 // KONFIGURASI
 // ============================================================
-const SUPABASE_URL = 'https://warihgiicetafowbccvw.supabase.co';
+const SUPABASE_URL = 'https://warihgiicetafowbccvw.sb.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhcmloZ2lpY2V0YWZvd2JjY3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDgyNDAsImV4cCI6MjA4ODQ4NDI0MH0.CIeEwHKQOqbUShITcvCE80lVUYiqJjglXDgZ8fnOIQs';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================
 // UTILITI
@@ -703,9 +705,9 @@ const isLoggedIn = () => !!getSession() && !!getMasjidId();
 // AUTH
 // ============================================================
 async function loginUser(email, password) {
-  const { data:{user}, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data:{user}, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) throw new Error(error.message);
-  const { data:userData, error:userError } = await supabase.from('users').select('*, masjid:masjid_id(*)').eq('id', user.id).single();
+  const { data:userData, error:userError } = await sb.from('users').select('*, masjid:masjid_id(*)').eq('id', user.id).single();
   if (userError) throw new Error(userError.message);
   localStorage.setItem('pk_session', user.id);
   setMasjidId(userData.masjid_id);
@@ -715,19 +717,19 @@ async function loginUser(email, password) {
   return userData;
 }
 async function registerUser(email, password, nama, masjidId, role='admin') {
-  const { data:{user}, error } = await supabase.auth.signUp({ email, password });
+  const { data:{user}, error } = await sb.auth.signUp({ email, password });
   if (error) throw new Error(error.message);
-  const { error:userError } = await supabase.from('users').insert({ id:user.id, email, nama, masjid_id:masjidId, role });
+  const { error:userError } = await sb.from('users').insert({ id:user.id, email, nama, masjid_id:masjidId, role });
   if (userError) throw new Error(userError.message);
   return user;
 }
 async function registerMasjid(nama, alamat, zonJakim, pinAdmin) {
-  const { data, error } = await supabase.from('masjid').insert({ nama, alamat, zon_jakim:zonJakim||'SGR01', pin_admin:pinAdmin||'1234' }).select().single();
+  const { data, error } = await sb.from('masjid').insert({ nama, alamat, zon_jakim:zonJakim||'SGR01', pin_admin:pinAdmin||'1234' }).select().single();
   if (error) throw new Error(error.message);
   return data;
 }
 function logoutUser() {
-  supabase.auth.signOut();
+  sb.auth.signOut();
   ['pk_session','pk_masjid_id','pk_user_role','pk_user_name','pk_masjid_name','pk_pilih'].forEach(k => localStorage.removeItem(k));
   location.reload();
 }
@@ -737,60 +739,60 @@ function logoutUser() {
 // ============================================================
 async function muatStaff() {
   const mid = getMasjidId(); if(!mid) return;
-  const { data, error } = await supabase.from('staff').select('*').eq('masjid_id', mid).order('staff_id');
+  const { data, error } = await sb.from('staff').select('*').eq('masjid_id', mid).order('staff_id');
   if (error) return toast('❌ Gagal muat staff');
   staff = data || [];
   renderSenaraiStaff(); renderProfil(); renderSolat();
 }
 async function muatTetapan() {
   const mid = getMasjidId(); if(!mid) return;
-  const { data, error } = await supabase.from('tetapan').select('*').eq('masjid_id', mid).maybeSingle();
+  const { data, error } = await sb.from('tetapan').select('*').eq('masjid_id', mid).maybeSingle();
   if (!error && data) { tetapan = data; isiTetapan(); renderWaktu(); renderMasjid(); }
 }
 async function muatKehadiran() {
   const mid = getMasjidId(); if(!mid) return;
-  const { data, error } = await supabase.from('kehadiran').select('*').eq('masjid_id', mid).order('ts', {ascending:false});
+  const { data, error } = await sb.from('kehadiran').select('*').eq('masjid_id', mid).order('ts', {ascending:false});
   if (!error) { log = data || []; renderLog(); renderSolat(); renderLaporan(); }
 }
 async function muatMasjid() {
   const mid = getMasjidId(); if(!mid) return;
-  const { data, error } = await supabase.from('masjid').select('*').eq('id', mid).single();
+  const { data, error } = await sb.from('masjid').select('*').eq('id', mid).single();
   if (!error && data) { tetapan = {...tetapan, ...data}; renderMasjid(); isiTetapan(); }
 }
 async function simpanStaffFB(s) {
   const mid = getMasjidId(); if(!mid) return toast('❌ Sila login');
-  const { error } = await supabase.from('staff').upsert({ ...s, masjid_id:mid });
+  const { error } = await sb.from('staff').upsert({ ...s, masjid_id:mid });
   if (error) return toast('❌ Gagal simpan staff');
   muatStaff(); toast('✅ Staff disimpan');
 }
 async function hapusStaffFB(id) {
   const mid = getMasjidId(); if(!mid) return;
-  const { error } = await supabase.from('staff').delete().eq('id', id).eq('masjid_id', mid);
+  const { error } = await sb.from('staff').delete().eq('id', id).eq('masjid_id', mid);
   if (error) return toast('❌ Gagal padam staff');
   muatStaff(); toast('✅ Staff dipadam');
 }
 async function tambahKehadiran(r) {
   const mid = getMasjidId(); if(!mid) return toast('❌ Sila login');
   r.ts = Date.now(); r.masjid_id = mid;
-  const { error } = await supabase.from('kehadiran').insert(r);
+  const { error } = await sb.from('kehadiran').insert(r);
   if (error) return toast('❌ Gagal simpan kehadiran');
   muatKehadiran(); toast('✅ Rekod kehadiran disimpan');
 }
 async function kemaskiniKehadiran(id, r) {
   const mid = getMasjidId(); if(!mid) return;
-  const { error } = await supabase.from('kehadiran').update(r).eq('id', id).eq('masjid_id', mid);
+  const { error } = await sb.from('kehadiran').update(r).eq('id', id).eq('masjid_id', mid);
   if (error) return toast('❌ Gagal kemaskini');
   muatKehadiran(); toast('✅ Kehadiran dikemaskini');
 }
 async function hapusKehadiranFB(id) {
   const mid = getMasjidId(); if(!mid) return;
-  const { error } = await supabase.from('kehadiran').delete().eq('id', id).eq('masjid_id', mid);
+  const { error } = await sb.from('kehadiran').delete().eq('id', id).eq('masjid_id', mid);
   if (error) return toast('❌ Gagal padam');
   muatKehadiran(); toast('✅ Rekod dipadam');
 }
 async function simpanTetapanFB() {
   const mid = getMasjidId(); if(!mid) return toast('❌ Sila login');
-  const { error } = await supabase.from('tetapan').upsert({ ...tetapan, masjid_id:mid });
+  const { error } = await sb.from('tetapan').upsert({ ...tetapan, masjid_id:mid });
   if (error) return toast('❌ Gagal simpan tetapan');
   toast('✅ Tetapan disimpan');
 }
